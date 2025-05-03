@@ -44,14 +44,3 @@ This project delivers an intelligent solution for recommending the most suitable
 
 * **Rule-based System:** Implements nutrient delta logic to provide precise fertilizer recommendations.
 * **Optional Enhancements:** Can be further refined using Decision Trees or Naive Bayes algorithms for more sophisticated predictions.
-
-## 🛠️ Installation
-
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/yourusername/crop-fertilizer-recommendation.git](https://github.com/yourusername/crop-fertilizer-recommendation.git)
-    ```
-2.  **Navigate to the project directory:**
-    ```bash
-    cd crop-fertilizer-recommendation
-    ```
