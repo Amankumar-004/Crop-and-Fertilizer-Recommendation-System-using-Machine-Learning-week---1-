@@ -1,17 +1,16 @@
-from flask import Flask, request, render_template
+import streamlit as st
 import pickle
 import numpy as np
 
-app = Flask(__name__)
-
 # Load the crop recommendation model
+@st.cache_resource
 def load_crop_model():
     try:
-        nb_model = pickle.load(open('"C:/Users/praja/Downloads/naive_bayes_model.pkl', 'rb'))
+        model = pickle.load(open('C:/Users/praja/Downloads/naive_bayes_model.pkl', 'rb'))
     except Exception as e:
-        print(f"Error loading model: {e}")
+        st.error(f"Error loading model: {e}")
         raise
-    return nb_model
+    return model
 
 # Crop number to name mapping
 crop_dict = {
@@ -39,30 +38,26 @@ crop_dict = {
     22: 'coffee'
 }
 
-nb_model = load_crop_model()
+model = load_crop_model()
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        try:
-            # Get input values from the form
-            N = float(request.form['N'])
-            P = float(request.form['P'])
-            K = float(request.form['K'])
-            temperature = float(request.form['temperature'])
-            humidity = float(request.form['humidity'])
-            ph = float(request.form['ph'])
-            rainfall = float(request.form['rainfall'])
+# Streamlit app UI
+st.title("🌱 Crop Recommendation System")
 
-            # Prepare features and predict
-            crop_features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
-            crop_prediction_num = nb_model.predict(crop_features)[0]
-            crop_name = crop_dict.get(crop_prediction_num, "Unknown Crop")
+st.markdown("### Enter the following details:")
 
-            return render_template('index.html', crop_prediction=crop_name)
-        except Exception as e:
-            return render_template('index.html', error=str(e))
-    return render_template('index.html')
+N = st.number_input("Nitrogen (N)", min_value=0.0)
+P = st.number_input("Phosphorous (P)", min_value=0.0)
+K = st.number_input("Potassium (K)", min_value=0.0)
+temperature = st.number_input("Temperature (°C)", min_value=-10.0)
+humidity = st.number_input("Humidity (%)", min_value=0.0, max_value=100.0)
+ph = st.number_input("Soil pH", min_value=0.0, max_value=14.0)
+rainfall = st.number_input("Rainfall (mm)", min_value=0.0)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if st.button("Recommend Crop"):
+    try:
+        features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
+        prediction = model.predict(features)[0]
+        crop = crop_dict.get(prediction, "Unknown Crop")
+        st.success(f"✅ Recommended Crop: **{crop.capitalize()}**")
+    except Exception as e:
+        st.error(f"Error in prediction: {e}")
